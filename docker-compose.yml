@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+  proxy:
+    restart: always
+    build:
+      context: .
+      dockerfile: etc/docker/Dockerfile
+    command: /bin/bash -c "python3 etc/wait-for.py && python3 proxy/manage.py migrate && python3 proxy/manage.py loaddata etc/fixtures/* && python3 proxy/manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DEBUG=True
+    env_file:
+      - etc/docker/web.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+
+  celery_worker:
+    restart: always
+    build:
+      context: .
+      dockerfile: etc/docker/Dockerfile
+    command: /bin/bash -c "cd proxy && celery -A devchallenge worker -l info"
+    env_file:
+      - etc/docker/web.env
+    volumes:
+      - ./media:/code/media
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  celery_beat:
+    restart: always
+    build:
+      context: .
+      dockerfile: etc/docker/Dockerfile
+    command: /bin/bash -c "cd proxy && celery -A devchallenge beat -l info"
+    env_file:
+      - etc/docker/web.env
+    volumes:
+      - ./media:/code/media
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    restart: always
+    image: mdillon/postgis
+    environment:
+      - POSTGRES_USER=devchallenge_user
+      - POSTGRES_PASSWORD=devchallenge_pass
+      - POSTGRES_DB=devchallenge_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker_data/postgresql:/var/lib/postgresql/data
+
+  rabbitmq:
+    restart: always
+    image: rabbitmq:3.7
+    volumes:
+      - ./docker_data/rabbitmq:/var/lib/rabbitmq
+
+  node1:
+    restart: always
+    build:
+      context: .
+      dockerfile: etc/docker/Docker.node
+    environment:
+      - PUBLIC_IP=216.58.209.78
+    ports:
+      - "9999:9999"
+    volumes:
+      - .:/code

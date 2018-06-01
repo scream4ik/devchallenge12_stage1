@@ -1,0 +1,28 @@
+FROM python:3.6
+
+RUN apt-get update \
+    \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    \
+    openssh-server \
+    rsync \
+    supervisor \
+    \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /var/run/sshd
+RUN echo 'root:root' |chpasswd
+RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+RUN mkdir /root/.ssh
+
+RUN mkdir /code
+ADD etc/node_requirements.txt /code/
+RUN pip3 install -r /code/node_requirements.txt
+ADD . /code/
+WORKDIR /code
+
+ADD etc/supervisor/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+
+RUN sed -i 's/^\(\[supervisord\]\)$/\1\nnodaemon=true/' /etc/supervisor/supervisord.conf
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]

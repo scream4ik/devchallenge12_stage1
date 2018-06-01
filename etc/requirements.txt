@@ -1,0 +1,13 @@
+Django<2.1
+dj-database-url==0.5.0
+psycopg2-binary==2.7.4
+uWSGI
+djangorestframework<3.9
+djangorestframework-jwt==1.11.0
+drf-yasg<1.8
+celery==4.1.0
+requests
+django-cleanup==2.1.0
+geoip2
+git+https://github.com/scream4ik/drf-chunked-upload@master
+Pillow

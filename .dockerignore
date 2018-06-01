@@ -1,0 +1,12 @@
+docker_data
+media
+public
+.git
+.gitignore
+.dockerignore
+.idea
+etc
+!etc/requirements.txt
+!etc/node_requirements.txt
+!etc/supervisor/supervisor.conf
+__pycache__

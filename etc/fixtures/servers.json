@@ -1,0 +1,16 @@
+[
+{
+    "model": "storage.server",
+    "pk": 1,
+    "fields": {
+        "public_domain": "127.0.0.1",
+        "public_port": 9999,
+        "free_space": 0,
+        "status": "offline",
+        "ssh_host": "node1",
+        "ssh_user": "root",
+        "ssh_password": "root",
+        "ssh_port": 22
+    }
+}
+]
